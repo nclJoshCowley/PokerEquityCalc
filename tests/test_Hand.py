@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 from pokerequitycalc.config import CARDS
 from pokerequitycalc.config import SUITS
 from pokerequitycalc.classes import Card

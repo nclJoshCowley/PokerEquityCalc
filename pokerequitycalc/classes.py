@@ -1,9 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 from pokerequitycalc.config import CARDS
 from pokerequitycalc.config import SUITS
 
 from collections import Counter
+import random
 
 # %%
 class Card:
@@ -46,6 +45,10 @@ class Card:
 
 # %%    
 class Hand:
+    """
+    TODO: Documentation. Five cards, with some hand strength.
+    """
+    
     _wheel = [CARDS[x] for x in ["A","5","4","3","2"]]
     
     def __init__(self, inp):
@@ -89,6 +92,24 @@ class Hand:
     def __repr__(self):
         with_sq_brackets = self.cards.__repr__()
         return "{}\n- {}".format(self._str, with_sq_brackets[1:-1])
+    
+    def __lt__(self, other):
+        return (self.score < other.score)
+
+    def __le__(self, other):
+        return (self.score <= other.score)
+    
+    def __gt__(self, other):
+        return (self.score > other.score)
+    
+    def __ge__(self, other):
+        return (self.score >= other.score)
+    
+    def __eq__(self, other):
+        return (self.score == other.score)
+    
+    def __ne__(self, other):
+        return (self.score != other.score)
     
     def is_flush(self):
         return (len(set([crd.suit for crd in self.cards])) == 1)
@@ -156,22 +177,35 @@ class Hand:
                 return 1 + sub_score, "One pair"
             else:
                 return 0 + sub_score, "High card"
-            
-    def __lt__(self, other):
-        return (self.score < other.score)
 
-    def __le__(self, other):
-        return (self.score <= other.score)
+# %%
+class Deck:
+    """
+    TODO: Documentation. Deck of cards
+    """
     
-    def __gt__(self, other):
-        return (self.score > other.score)
+    def __init__(self):
+        self.cards = [Card(str(v) + str(s)) 
+                      for v in CARDS.keys() 
+                      for s in SUITS.keys()]
+        self.cards.sort(reverse = True)
+        self.n_cards = len(self.cards)
+        
+    def __repr__(self):
+        return "{} cards remain.\n{}".format(
+            self.n_cards,
+            ", ".join([str(c) for c in self.cards])
+            )
     
-    def __ge__(self, other):
-        return (self.score >= other.score)
-    
-    def __eq__(self, other):
-        return (self.score == other.score)
-    
-    def __ne__(self, other):
-        return (self.score != other.score)
-    
+    def remove_card(self, rem_card):
+        assert isinstance(rem_card, Card), "Argument not of 'Card' type."
+        assert rem_card in self.cards, "Card not found in deck."
+        self.cards.remove(rem_card)
+        self.n_cards -= 1
+        
+    def draw_cards(self, n):
+        assert n <= self.n_cards, "Not enough cards left in the deck."
+        random_cards = random.sample(self.cards, n)
+        for rc in random_cards:
+            self.remove_card(rc)
+        return random_cards
